@@ -4,84 +4,105 @@ namespace csharp
 {
     public class GildedRose
     {
-        IList<Item> Items;
-        public GildedRose(IList<Item> Items)
+        public IList<Item> items;
+        public GildedRose(IList<Item> items)
         {
-            this.Items = Items;
+            this.items = items;
         }
 
+        public int QualityInBounds(Item item)
+        {
+            if (item.Quality > 50) return 50;
+            if (item.Quality < 0) return 0;
+            return item.Quality;
+        }
+
+        public bool SellInCheckForDays(Item item, int days)
+        {
+            return item.SellIn <= days;
+        }
+        public Item UpdateBrie(Item item, int multiplier)
+        {
+            item.Quality += multiplier;
+            item.Quality = QualityInBounds(item);
+
+            return item;
+        }
+        public Item UpdateBackstagePasses(Item item, int multiplier)
+        {
+            if (item.SellIn < 0)
+            {
+                item.Quality = 0;
+                return item;
+            }
+
+            item.Quality += multiplier;
+
+            if (SellInCheckForDays(item, 5))
+            {
+                item.Quality += multiplier;
+            }
+
+            if (SellInCheckForDays(item, 10))
+            {
+                item.Quality += multiplier;
+            }
+
+            item.Quality = QualityInBounds(item);
+
+            return item;
+        }
+        public Item UpdateConjured(Item item, int multiplier)
+        {
+            item.Quality -= 2 * multiplier;
+            item.Quality = QualityInBounds(item);
+
+            return item;
+        }
+        public Item UpdateNormalItem(Item item, int multiplier)
+        {
+            item.Quality -= multiplier;
+            item.Quality = QualityInBounds(item);
+
+            return item;
+        }
         public void UpdateQuality()
         {
-            for (var i = 0; i < Items.Count; i++)
+            const int legendaryQuality = 80;
+            for (var i = 0; i < items.Count; i++)
             {
-                if (Items[i].Name != "Aged Brie" && Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
+                int multiplier = 1;
+
+                if (items[i].SellIn < 0)
                 {
-                    if (Items[i].Quality > 0)
-                    {
-                        if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                        {
-                            Items[i].Quality = Items[i].Quality - 1;
-                        }
-                    }
+                    multiplier += 1;
+                }
+
+                if (items[i].Name == "Aged Brie")
+                {
+                    items[i] = UpdateBrie(items[i], multiplier);
+                }
+                else if (items[i].Name.StartsWith("Backstage passes"))
+                {
+                    items[i] = UpdateBackstagePasses(items[i], multiplier);
+                }
+                else if (items[i].Name == "Sulfuras, Hand of Ragnaros")
+                {
+                    items[i].Quality = legendaryQuality;
+                }
+                else if (items[i].Name.StartsWith("Conjured"))
+                {
+                    items[i] = UpdateConjured(items[i], multiplier);
                 }
                 else
                 {
-                    if (Items[i].Quality < 50)
-                    {
-                        Items[i].Quality = Items[i].Quality + 1;
-
-                        if (Items[i].Name == "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (Items[i].SellIn < 11)
-                            {
-                                if (Items[i].Quality < 50)
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
-
-                            if (Items[i].SellIn < 6)
-                            {
-                                if (Items[i].Quality < 50)
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
-                        }
-                    }
+                    items[i] = UpdateNormalItem(items[i], multiplier);
                 }
 
-                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
+                if (items[i].Name != "Sulfuras, Hand of Ragnaros")
                 {
-                    Items[i].SellIn = Items[i].SellIn - 1;
-                }
 
-                if (Items[i].SellIn < 0)
-                {
-                    if (Items[i].Name != "Aged Brie")
-                    {
-                        if (Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (Items[i].Quality > 0)
-                            {
-                                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                                {
-                                    Items[i].Quality = Items[i].Quality - 1;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Items[i].Quality = Items[i].Quality - Items[i].Quality;
-                        }
-                    }
-                    else
-                    {
-                        if (Items[i].Quality < 50)
-                        {
-                            Items[i].Quality = Items[i].Quality + 1;
-                        }
-                    }
+                    items[i].SellIn -= 1;
                 }
             }
         }
