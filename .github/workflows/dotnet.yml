@@ -28,3 +28,6 @@ jobs:
 
     - name: Build solution
       run: msbuild csharp.sln -t:rebuild -property:Configuration=Release
+
+    - name: Run UnitTests
+      run: packages/NUnit.ConsoleRunner.3.15.2/tools/nunit3-console.exe  bin/Release/csharp.dll
