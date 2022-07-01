@@ -30,4 +30,4 @@ jobs:
       run: msbuild csharp.sln -t:rebuild -property:Configuration=Release
 
     - name: Run UnitTests
-      run: ./NUnit.ConsoleRunner.3.13.0/tools/nunit3-console.exe  path/to/test.dll
+      run: packages/NUnit.ConsoleRunner.3.15.2/tools/nunit3-console.exe  path/to/test.dll
